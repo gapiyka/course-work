@@ -278,6 +278,17 @@ MonoBehaviour:
   minePrefab: {fileID: 2032271729995140717, guid: 72f7179331078e84395f12e04563dda9, type: 3}
   playerTransform: {fileID: 955602475}
   groundTransform: {fileID: 1949259009}
+  tilesPrefabs:
+  - {fileID: 5720469594881508722, guid: f15207815563b58429a21af123246a2e, type: 3}
+  - {fileID: 660515146482344530, guid: 45d6932c9f75c8e4ca2eceab9f039d49, type: 3}
+  - {fileID: 2087111963392032961, guid: fa5044bc6f040784d9e43f635516248a, type: 3}
+  - {fileID: 9128682410681885842, guid: 41a1c31be7456104aa10c44be2186c89, type: 3}
+  - {fileID: 3116839153850264366, guid: d1d0b430f5716ab48bd2b9ec2683a7a9, type: 3}
+  - {fileID: 6686579837792420537, guid: 984360c7c37c4b24e8daafe06e28e3ac, type: 3}
+  - {fileID: 6260273038497584999, guid: e584527b4fee9fe44abcb79a52771a5d, type: 3}
+  - {fileID: 2484711396285288096, guid: 1843fd00533b8c34fa5822bf07e6a800, type: 3}
+  - {fileID: 945677522769686486, guid: 7dd12b45d2d8425468c150c208a05600, type: 3}
+  - {fileID: 5305060716703927948, guid: 936ca044dccbd744986625704b453e27, type: 3}
 --- !u!4 &868751719
 Transform:
   m_ObjectHideFlags: 0
@@ -562,7 +573,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1949259006
 MeshCollider:
   m_ObjectHideFlags: 0
