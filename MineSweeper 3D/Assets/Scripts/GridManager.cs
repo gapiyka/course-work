@@ -6,13 +6,14 @@ public struct Tile
     public int minesCounter;
     public bool IsChecked;
     public bool IsFlag;
+    public bool IsVisitedByOpening;
 }
 
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private GameObject flagPrefab;
+    [SerializeField] private GameObject bordersGO;
     [SerializeField] private Transform playerTransform;
-    [SerializeField] private Transform groundTransform;
     [SerializeField] private GameObject[] tilesPrefabs;
 
     private int gameDifficulty; // 3 levels of difficult
@@ -43,6 +44,8 @@ public class GridManager : MonoBehaviour
         mapMiddle = gridSize / 2f;
 
         playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
+        bordersGO.transform.localScale = new Vector3(difficulty, 1, difficulty);
+        Instantiate(bordersGO, new Vector3(gridSize*tileSize, 0, gridSize * tileSize), Quaternion.Euler(0, 180, 0), this.transform);
 
         GenerateGrid();
     }
@@ -65,12 +68,13 @@ public class GridManager : MonoBehaviour
                 randomChance = UnityEngine.Random.Range(randomLowerBorder, randomUpperBorder);
                 if (randomChance < minesÑhance)
                 {
-                    gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[9], new Vector3(x * tileSize + tileSize / 2, 0, z * tileSize + tileSize / 2f), Quaternion.identity, this.transform);
+                    gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[9], new Vector3((x * tileSize) + (tileSize / 2f), 0, (z * tileSize) + (tileSize / 2f)), Quaternion.identity, this.transform);
                     gridMatrix[x, z].minesCounter = 9;
                     nMines++;
                 }
                 gridMatrix[x, z].IsChecked = false; // set tile not checked
                 gridMatrix[x, z].IsFlag = false; // set tile without flag
+                gridMatrix[x, z].IsVisitedByOpening = false; // set tile not visited
             }
         }
         PaintMineArea();
@@ -118,57 +122,126 @@ public class GridManager : MonoBehaviour
                     if (gridMatrix[x + 1, z - 1].minesCounter == 9) n++;
                 }
 
-                gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[n], new Vector3(x * tileSize + tileSize / 2, 0f, z * tileSize + tileSize / 2f), Quaternion.identity, this.transform); ;
+                gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[n], new Vector3((x * tileSize) + (tileSize / 2f), 0f, (z * tileSize) + (tileSize / 2f)), Quaternion.identity, this.transform);
+                gridMatrix[x, z].minesCounter = n;
             }
         }
     }
+
+    void OpenTile(int x, int z)
+    {
+        Transform checkT = gridMatrix[x, z].gameObj.transform.GetChild(0);
+        Transform bodyT = gridMatrix[x, z].gameObj.transform.GetChild(1);
+        checkT.gameObject.SetActive(false);
+        bodyT.gameObject.SetActive(true);
+        gridMatrix[x, z].IsChecked = true;
+        gridMatrix[x, z].IsVisitedByOpening = true;
+    }
+
+    int OpenCloseTiles(int x, int z)
+    {
+        OpenTile(x, z);
+        if (gridMatrix[x, z].minesCounter == 0)
+        {
+            if (x != 0)
+            {
+                if (!gridMatrix[x - 1, z].IsVisitedByOpening) OpenCloseTiles(x-1, z);
+            }
+            if (z != 0)
+            {
+                if (!gridMatrix[x, z - 1].IsVisitedByOpening) OpenCloseTiles(x, z-1);
+            }
+            if (x != 0 && z != 0)
+            {
+                if (!gridMatrix[x - 1, z - 1].IsVisitedByOpening) OpenCloseTiles(x-1, z-1);
+            }
+            if (x != gridSize - 1)
+            {
+                if (!gridMatrix[x + 1, z].IsVisitedByOpening) OpenCloseTiles(x+1, z);
+            }
+            if (z != gridSize - 1)
+            {
+                if (!gridMatrix[x, z + 1].IsVisitedByOpening) OpenCloseTiles(x, z+1);
+            }
+            if (x != gridSize - 1 && z != gridSize - 1)
+            {
+                if (!gridMatrix[x + 1, z + 1].IsVisitedByOpening) OpenCloseTiles(x+1, z+1);
+            }
+            if (x != 0 && z != gridSize - 1)
+            {
+                if (!gridMatrix[x - 1, z + 1].IsVisitedByOpening) OpenCloseTiles(x-1, z+1);
+            }
+            if (x != gridSize - 1 && z != 0)
+            {
+                if (!gridMatrix[x + 1, z - 1].IsVisitedByOpening) OpenCloseTiles(x+1, z-1);
+            }
+        }
+
+        if (gridMatrix[x, z].minesCounter == 9)
+        {
+            RestartGame();
+            return -1;
+        }
+        return 1;
+    }
+
+    
+     void RestartGame()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    } 
+     
 
     Vector3 GetStartPos(float height)
     {
         return new Vector3(tileSize * mapMiddle, height, tileSize * mapMiddle);
     }
 
-    void SwitchTileState(Tile tile, int button, int xInArray, int zInArray)
+    void FlagClaim(int x, int z, bool IsAlreadyFlag)
+    {
+        Transform CheckerTransform = gridMatrix[x, z].gameObj.transform.GetChild(0);
+        if (IsAlreadyFlag) RemoveFlagFromTile(CheckerTransform, x, z);
+        else PutFlagOnTile(CheckerTransform, x, z);
+    }
+
+    void PutFlagOnTile(Transform parent, int x, int z)
+    {
+        Instantiate(flagPrefab, parent.position, Quaternion.identity, parent);
+        gridMatrix[x, z].IsFlag = true;
+    }
+    
+    void RemoveFlagFromTile(Transform parent, int x, int z)
+    {
+        Destroy(parent.Find("Flag(Clone)").gameObject);// could be changed on SetActive
+        gridMatrix[x, z].IsFlag = false;
+    }
+
+    int SwitchTileState(Tile tile, int button, int xInArray, int zInArray)
     {
         bool IsAlreadyChecked = tile.IsChecked;
         bool IsAlreadyFlag = tile.IsFlag;
-        Transform CheckerTransform = tile.gameObj.transform.GetChild(0);
-        Transform BodyTransform = tile.gameObj.transform.GetChild(1);
-
+        
         if (!IsAlreadyChecked)
         {
-            if (button == 1 && !IsAlreadyFlag)
-            {
-                CheckerTransform.gameObject.SetActive(false);
-                BodyTransform.gameObject.SetActive(true);
-                gridMatrix[xInArray, zInArray].IsChecked = true;
-            }
+            if (button == 1 && !IsAlreadyFlag) button = OpenCloseTiles(xInArray, zInArray);
 
-            if (button == 2)
-            {
-                if (IsAlreadyFlag)
-                {
-                    Destroy(CheckerTransform.Find("Flag(Clone)").gameObject);// can be changed on SetActive
-                    gridMatrix[xInArray, zInArray].IsFlag = false;
-                }
-                else
-                {
-                    Instantiate(flagPrefab, CheckerTransform.position, Quaternion.identity, CheckerTransform);
-                    gridMatrix[xInArray, zInArray].IsFlag = true;
-                }
-            }
-        }   
+            if (button == 2) FlagClaim(xInArray, zInArray, IsAlreadyFlag);
+
+            return button;
+        }
+        return 0;
     }
 
-    public void FindPointedTile(GameObject obj, int button)
+    public int FindPointedTile(GameObject obj, int button)
     {
         for (int x = 0; x < gridMatrix.GetLength(0); x++)
         {
             for (int z = 0; z < gridMatrix.GetLength(1); z++)
             {
                 Tile tile = gridMatrix[x, z];
-                if (tile.gameObj.transform.position == obj.transform.position) SwitchTileState(tile, button, x, z);
+                if (tile.gameObj.transform.position == obj.transform.position) return SwitchTileState(tile, button, x, z);
             }
-        }   
+        }
+        return 0;
     }
 }
