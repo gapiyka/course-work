@@ -11,11 +11,14 @@ namespace PlayerConfiguration
         [SerializeField] private LayerMask groundMask;
         [SerializeField] private GridManager gridManager;
         [SerializeField] private AudioController audioController;
+        [SerializeField] private Animator animator;
+        [SerializeField] private Transform bodyTransform;
+        [SerializeField] private GameObject tool;
 
-        public float mouseSensitivity = 100f;
-        public float speed = 8f;
-        public float gravity = -10f;
-        public float jumpHeight = 2f;
+        private float mouseSensitivity = 100f;
+        private float speed = 8f;
+        private float gravity = -10f;
+        private float jumpHeight = 2f;
 
         private float groundDistance = 0.3f;
         private float yRotation = 0f;
@@ -44,7 +47,7 @@ namespace PlayerConfiguration
             IsGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
             velocity.y += gravity * Time.deltaTime;
             Vector3 move = player.transform.right * axisX + player.transform.forward * axisZ;
-            if (IsGrounded && velocity.y < 0) velocity.y = -2f;
+            if (IsGrounded && velocity.y < 0) OnTouchDown();
             if (Input.GetButtonDown("Jump") && IsGrounded) OnJump();
             controller.Move(velocity * Time.deltaTime);
             controller.Move(move * speed * Time.deltaTime);
@@ -72,10 +75,21 @@ namespace PlayerConfiguration
             if (IsPressedLMB || IsPressedRMB) OnButtonPressed();
         }
 
+        void OnTouchDown()
+        {
+            bodyTransform.localPosition = new Vector3(0, 0, 0);
+            bodyTransform.localRotation = Quaternion.identity;
+            //velocity.y = -2f;
+            animator.SetBool("isGrounded", true);
+            tool.SetActive(true);
+        }
+
         void OnJump()
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -gravity);
             audioController.PlaySoundJump();
+            animator.SetBool("isGrounded", false);
+            tool.SetActive(false);
         }
 
         void OnButtonPressed()
@@ -88,7 +102,6 @@ namespace PlayerConfiguration
             if (Physics.Raycast(cameraCenter, camera.gameObject.transform.forward, out hit, tileDistance))
             {
                 GameObject obj = GetFullParent(hit.transform).gameObject; 
-                Debug.Log(obj);
                 int res = gridManager.FindPointedTile(obj, button);
                 PlaySoundsByButton(res, button);
             }

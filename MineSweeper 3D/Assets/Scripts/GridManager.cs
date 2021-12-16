@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public struct Tile
@@ -15,6 +17,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject bordersGO;
     [SerializeField] private Transform playerTransform;
     [SerializeField] private GameObject[] tilesPrefabs;
+    [SerializeField] private CameraShake cameraShake;
 
     private int gameDifficulty; // 3 levels of difficult
     private int gridSize; // range of tiles for axis
@@ -22,6 +25,7 @@ public class GridManager : MonoBehaviour
     private float mapMiddle; // center of map (used to start point)
     private int mines—hance; // chance of generation mines on Map
     private int nMines; // number of mines at map
+    private bool isCoroutineExecuting = false; // checker for restartGameCoroutine
 
     private const int sizeMultiplier = 9; // multipler for payable size
     private const int minesMultiplier = 20; // diviner to count n of mines
@@ -179,19 +183,47 @@ public class GridManager : MonoBehaviour
 
         if (gridMatrix[x, z].minesCounter == 9)
         {
-            RestartGame();
+            StartCoroutine(OpenBomb(gridMatrix[x, z].gameObj));
             return -1;
         }
         return 1;
     }
 
-    
-     void RestartGame()
+    IEnumerator OpenBomb(GameObject mine)
+    {
+        if (isCoroutineExecuting)
+            yield break;
+
+        const int indexBody = 1;// index 1 of mine == "Body"
+        const int indexMine = 0;// index 0 of body == "Mine"
+        const int indexExplosionEffect = 2;// index 2 of mine == "ExplosionEffect"
+        const float timeDelay = 1f;
+
+        Transform effectT = mine.transform
+            .GetChild(indexBody)
+            .GetChild(indexMine)
+            .GetChild(indexExplosionEffect);
+        if (effectT.TryGetComponent(out ParticleSystem ps))
+        {
+            ps.Play();
+        }
+
+        cameraShake.shakeDuration = timeDelay;
+
+        isCoroutineExecuting = true;
+
+        yield return new WaitForSeconds(timeDelay);
+
+        RestartGame();
+
+        isCoroutineExecuting = false;
+    }
+
+    void RestartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     } 
      
-
     Vector3 GetStartPos(float height)
     {
         return new Vector3(tileSize * mapMiddle, height, tileSize * mapMiddle);
