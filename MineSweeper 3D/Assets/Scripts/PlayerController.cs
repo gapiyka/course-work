@@ -44,6 +44,9 @@ namespace PlayerConfiguration
             float axisX = Input.GetAxis("Horizontal");
             float axisZ = Input.GetAxis("Vertical");
 
+            animator.SetFloat("x", axisX);
+            animator.SetFloat("z", axisZ);
+
             IsGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
             velocity.y += gravity * Time.deltaTime;
             Vector3 move = player.transform.right * axisX + player.transform.forward * axisZ;
