@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public struct Tile
@@ -18,6 +17,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Transform playerTransform;
     [SerializeField] private GameObject[] tilesPrefabs;
     [SerializeField] private CameraShake cameraShake;
+    [SerializeField] private TimerController timerController;
 
     private int gameDifficulty; // 3 levels of difficult
     private int gridSize; // range of tiles for axis
@@ -82,6 +82,7 @@ public class GridManager : MonoBehaviour
             }
         }
         PaintMineArea();
+        timerController.RunTimer(nMines);
     }
 
     //should be optimized
@@ -240,12 +241,14 @@ public class GridManager : MonoBehaviour
     {
         Instantiate(flagPrefab, parent.position, Quaternion.identity, parent);
         gridMatrix[x, z].IsFlag = true;
+        timerController.MinesDecrease();
     }
     
     void RemoveFlagFromTile(Transform parent, int x, int z)
     {
         Destroy(parent.Find("Flag(Clone)").gameObject);// could be changed on SetActive
         gridMatrix[x, z].IsFlag = false;
+        timerController.MinesIncrease();
     }
 
     int SwitchTileState(Tile tile, int button, int xInArray, int zInArray)
@@ -275,5 +278,10 @@ public class GridManager : MonoBehaviour
             }
         }
         return 0;
+    }
+
+    public int GetMinesCount()
+    {
+        return nMines;
     }
 }
