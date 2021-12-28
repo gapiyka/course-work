@@ -27,4 +27,14 @@ public class AudioController : MonoBehaviour
         selectSound[n].Play();
     }
 
+    public void ChangeVolumes(float musicVal, float vfxVal)
+    {
+        backgroundMusic.volume = musicVal;
+        jumpSound.volume = vfxVal;
+        boomSound.volume = vfxVal;
+        foreach (AudioSource audio in selectSound)
+        {
+            audio.volume = vfxVal;
+        }
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.IO;
 
 namespace PlayerConfiguration
 {
@@ -31,6 +32,13 @@ namespace PlayerConfiguration
         {
             //lock cursor move out of screen bounds
             Cursor.lockState = CursorLockMode.Locked;
+            if (File.Exists(Application.dataPath + "/save.txt"))
+            {
+                string saveString = File.ReadAllText(Application.dataPath + "/save.txt");
+                SaveJsonObject saveObject = JsonUtility.FromJson<SaveJsonObject>(saveString);
+                UpdateSettings(saveObject);
+            }
+
         }
 
         void Update()
@@ -128,6 +136,12 @@ namespace PlayerConfiguration
         {
             if (button == res) audioController.PlaySoundSelect(res - 1);
             if (res == -1) audioController.PlaySoundBoom();
+        }
+
+        public void UpdateSettings(SaveJsonObject saveObject)
+        {
+            mouseSensitivity = saveObject.mouseSensitivity;
+            audioController.ChangeVolumes(saveObject.musicVolume, saveObject.vfxVolume);
         }
     }
 }
