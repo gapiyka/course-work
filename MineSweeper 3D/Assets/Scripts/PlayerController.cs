@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.IO;
 
 namespace PlayerConfiguration
 {
@@ -11,6 +10,7 @@ namespace PlayerConfiguration
         [SerializeField] private Transform groundCheck;
         [SerializeField] private LayerMask groundMask;
         [SerializeField] private GridManager gridManager;
+        [SerializeField] private MenusController menusController;
         [SerializeField] private AudioController audioController;
         [SerializeField] private Animator animator;
         [SerializeField] private Transform bodyTransform;
@@ -25,26 +25,38 @@ namespace PlayerConfiguration
         private float yRotation = 0f;
         private Vector3 velocity;
         private bool IsGrounded = true;
-        private bool IsPressedLMB = false;
+        private bool IsPressedLMB = false; 
         private bool IsPressedRMB = false;
+        private bool IsGameRunning = false;
+        private bool FirstLoad = true;
 
         void Start()
         {
             //lock cursor move out of screen bounds
-            Cursor.lockState = CursorLockMode.Locked;
-            if (File.Exists(Application.dataPath + "/save.txt"))
-            {
-                string saveString = File.ReadAllText(Application.dataPath + "/save.txt");
-                SaveJsonObject saveObject = JsonUtility.FromJson<SaveJsonObject>(saveString);
-                UpdateSettings(saveObject);
-            }
-
+            //Cursor.lockState = CursorLockMode.Locked;
+            UpdateSettings(menusController.LoadConfig());
         }
 
         void Update()
         {
-            CalculateMovements();
-            CalculateMouseActions();
+            if(FirstLoad && menusController.IsGameLaunched())
+            {
+                IsGameRunning = true;
+                FirstLoad = false;
+                UpdateSettings(menusController.LoadConfig());
+            }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                IsGameRunning = menusController.PressEsc(IsGameRunning);
+                UpdateSettings(menusController.LoadConfig());
+            };
+            if (IsGameRunning)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                CalculateMovements();
+                CalculateMouseActions();
+            }
+            else Cursor.lockState = CursorLockMode.Confined;
         }
 
         void CalculateMovements()

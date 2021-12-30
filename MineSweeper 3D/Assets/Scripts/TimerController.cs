@@ -24,7 +24,7 @@ public class TimerController : MonoBehaviour
         }             
     }
 
-    void ManageTimer(bool state)
+    public void ManageTimer(bool state)
     {
         IsTimerRunning = state;
         timerBar.SetActive(state);

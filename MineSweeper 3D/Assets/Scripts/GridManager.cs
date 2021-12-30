@@ -26,6 +26,7 @@ public class GridManager : MonoBehaviour
     private int mines—hance; // chance of generation mines on Map
     private int nMines; // number of mines at map
     private bool isCoroutineExecuting = false; // checker for restartGameCoroutine
+    private GameObject tempBorder; // temporary Border for destroying
 
     private const int sizeMultiplier = 9; // multipler for payable size
     private const int minesMultiplier = 20; // diviner to count n of mines
@@ -33,14 +34,10 @@ public class GridManager : MonoBehaviour
 
     public Tile[,] gridMatrix; // two-dimensional array to detect mines
 
-    void Start()
+    public void ReloadMap(int difficulty)
     {
-        // should take parameter `gameDifficulty` from settings
-        ReloadMap(1);
-    }
+        ClearExistingMap();
 
-    void ReloadMap(int difficulty)
-    {
         gameDifficulty = difficulty;
 
         gridSize = gameDifficulty * sizeMultiplier;
@@ -49,9 +46,26 @@ public class GridManager : MonoBehaviour
 
         playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
         bordersGO.transform.localScale = new Vector3(difficulty, 1, difficulty);
-        Instantiate(bordersGO, new Vector3(gridSize*tileSize, 0, gridSize * tileSize), Quaternion.Euler(0, 180, 0), this.transform);
+
+        Destroy(tempBorder);
+
+        tempBorder = Instantiate(bordersGO, new Vector3(gridSize*tileSize, 0, gridSize * tileSize), Quaternion.Euler(0, 180, 0), this.transform);
 
         GenerateGrid();
+    }
+
+    void ClearExistingMap()
+    {
+        if (gridMatrix != null)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                for (int z = 0; z < gridSize; z++)
+                {
+                    if (gridMatrix[x, z].gameObj != null) Destroy(gridMatrix[x, z].gameObj);
+                }
+            }
+        }
     }
 
     // generation grid with mines
