@@ -10,7 +10,6 @@ namespace PlayerConfiguration
         [SerializeField] private Transform groundCheck;
         [SerializeField] private LayerMask groundMask;
         [SerializeField] private GridManager gridManager;
-        [SerializeField] private MenusController menusController;
         [SerializeField] private AudioController audioController;
         [SerializeField] private Animator animator;
         [SerializeField] private Transform bodyTransform;
@@ -27,36 +26,25 @@ namespace PlayerConfiguration
         private bool IsGrounded = true;
         private bool IsPressedLMB = false; 
         private bool IsPressedRMB = false;
-        private bool IsGameRunning = false;
-        private bool FirstLoad = true;
+        private bool animationNotExecuting = true;
+        public bool IsPressedESC = false;
+        public bool IsGameRunning = false;
+        public bool IsGamePaused = false;
 
         void Start()
         {
-            //lock cursor move out of screen bounds
-            //Cursor.lockState = CursorLockMode.Locked;
-            UpdateSettings(menusController.LoadConfig());
+            UnlockScreenCursor();
         }
 
         void Update()
         {
-            if(FirstLoad && menusController.IsGameLaunched())
+            IsPressedESC = Input.GetKeyDown(KeyCode.Escape);
+            if (gridManager.gameState == GameState.Lose || gridManager.gameState == GameState.Win) IsPressedESC = false;
+            if (IsGameRunning && !IsGamePaused)
             {
-                IsGameRunning = true;
-                FirstLoad = false;
-                UpdateSettings(menusController.LoadConfig());
-            }
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                IsGameRunning = menusController.PressEsc(IsGameRunning);
-                UpdateSettings(menusController.LoadConfig());
-            };
-            if (IsGameRunning)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
                 CalculateMovements();
                 CalculateMouseActions();
             }
-            else Cursor.lockState = CursorLockMode.Confined;
         }
 
         void CalculateMovements()
@@ -83,7 +71,7 @@ namespace PlayerConfiguration
 
             yRotation -= mouseY;
             yRotation = Mathf.Clamp(yRotation, -90f, 90f);
-            camera.gameObject.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
+            camera.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
 
             player.transform.Rotate(Vector3.up * mouseX);
 
@@ -150,10 +138,33 @@ namespace PlayerConfiguration
             if (res == -1) audioController.PlaySoundBoom();
         }
 
+        public void UnlockScreenCursor()
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+        //lock cursor move out of screen bounds
+        public void LockScreenCursor()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
         public void UpdateSettings(SaveJsonObject saveObject)
         {
             mouseSensitivity = saveObject.mouseSensitivity;
             audioController.ChangeVolumes(saveObject.musicVolume, saveObject.vfxVolume);
+        }
+
+        public void WinAnimate()
+        {
+            if (animationNotExecuting) {
+                animationNotExecuting = false;
+                //move camera ahead of palyer and rotate to look at aniamtion
+                player.transform.eulerAngles = new Vector3(0, 0, 0);
+                camera.transform.eulerAngles = new Vector3(0, 180, 0);
+                camera.transform.position += 2f * Vector3.forward;;
+
+                animator.Play("Win");
+            }
         }
     }
 }

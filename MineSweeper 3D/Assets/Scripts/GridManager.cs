@@ -29,29 +29,30 @@ public class GridManager : MonoBehaviour
     private GameObject tempBorder; // temporary Border for destroying
 
     private const int sizeMultiplier = 9; // multipler for payable size
-    private const int minesMultiplier = 20; // diviner to count n of mines
+    private const int minesMultiplier = 10; // diviner to count n of mines
     private const int tileSize = 5; // size of plate from plane object scale
+    private string[] result; // get string timer + mines counter
 
-    public Tile[,] gridMatrix; // two-dimensional array to detect mines
+    public Tile[,] gridMatrix; // two-dimensional array to detect mine
+    public GameState gameState;
 
     public void ReloadMap(int difficulty)
     {
         ClearExistingMap();
 
         gameDifficulty = difficulty;
-
-        gridSize = gameDifficulty * sizeMultiplier;
+        gridSize = (gameDifficulty * sizeMultiplier) - (gameDifficulty - 1);
         mapSize = gridSize * gridSize;
         mapMiddle = gridSize / 2f;
 
         playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
-        bordersGO.transform.localScale = new Vector3(difficulty, 1, difficulty);
+        bordersGO.transform.localScale = new Vector3(gameDifficulty, 1, gameDifficulty);
 
         Destroy(tempBorder);
-
         tempBorder = Instantiate(bordersGO, new Vector3(gridSize*tileSize, 0, gridSize * tileSize), Quaternion.Euler(0, 180, 0), this.transform);
 
         GenerateGrid();
+        RunTimer(true);
     }
 
     void ClearExistingMap()
@@ -76,8 +77,9 @@ public class GridManager : MonoBehaviour
         int randomChance;
 
         nMines = 0;
-        mines—hance = gameDifficulty * minesMultiplier;
+        mines—hance = (gameDifficulty * tileSize) + minesMultiplier;
         gridMatrix = new Tile[gridSize, gridSize];
+        gameState = GameState.Play;
         
         for (int x = 0; x < gridSize; x++)
         {
@@ -96,7 +98,6 @@ public class GridManager : MonoBehaviour
             }
         }
         PaintMineArea();
-        timerController.RunTimer(nMines);
     }
 
     //should be optimized
@@ -198,13 +199,13 @@ public class GridManager : MonoBehaviour
 
         if (gridMatrix[x, z].minesCounter == 9)
         {
-            StartCoroutine(OpenBomb(gridMatrix[x, z].gameObj));
+            StartCoroutine(OpenMine(gridMatrix[x, z].gameObj));
             return -1;
         }
         return 1;
     }
 
-    IEnumerator OpenBomb(GameObject mine)
+    IEnumerator OpenMine(GameObject mine)
     {
         if (isCoroutineExecuting)
             yield break;
@@ -229,15 +230,17 @@ public class GridManager : MonoBehaviour
 
         yield return new WaitForSeconds(timeDelay);
 
-        RestartGame();
+        EndGame(GameState.Lose);
 
         isCoroutineExecuting = false;
     }
 
-    void RestartGame()
+    void EndGame(GameState state)
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-    } 
+        result = new string[2] { timerController.GetStringTimer(), nMines.ToString() };
+        gameState = state;
+        StopTimer();
+    }
      
     Vector3 GetStartPos(float height)
     {
@@ -276,9 +279,29 @@ public class GridManager : MonoBehaviour
 
             if (button == 2) FlagClaim(xInArray, zInArray, IsAlreadyFlag);
 
+            if(CheckOnWin()) EndGame(GameState.Win);
+
             return button;
         }
         return 0;
+    }
+
+    bool CheckOnWin()
+    {
+        if (timerController.GetCurrentMinesCounter() == 0)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                for (int z = 0; z < gridSize; z++)
+                {
+                    Tile currTile = gridMatrix[x, z];
+                    if (currTile.IsChecked || currTile.IsFlag) continue;
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public int FindPointedTile(GameObject obj, int button)
@@ -294,8 +317,18 @@ public class GridManager : MonoBehaviour
         return 0;
     }
 
-    public int GetMinesCount()
+    public void RunTimer(bool newTimer)
     {
-        return nMines;
+        timerController.RunTimer(nMines, newTimer);
+    }
+
+    public void StopTimer()
+    {
+        timerController.StopTimer();
+    }
+
+    public string[] GetResults()
+    {
+        return result;
     }
 }

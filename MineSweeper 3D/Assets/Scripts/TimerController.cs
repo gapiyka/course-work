@@ -9,22 +9,19 @@ public class TimerController : MonoBehaviour
     private bool IsTimerRunning = false;
     private float startGameTime;
     private int minesCounter;
+    private int deltaGameTime = 0;
 
     void Update()
     {
         if (IsTimerRunning)
         {
-            const string timeSeparator = ":";
-            const int minD = 60;
-            int deltaGameTime = (int)(Time.time - startGameTime);
-            string deltaMin = FormatInteger(deltaGameTime / minD);
-            string deltaSec = FormatInteger(deltaGameTime % minD);
-            timerText.text = deltaMin + timeSeparator + deltaSec;
+            deltaGameTime = (int)(Time.time - startGameTime);
+            timerText.text = GetStringTimer();
             minesText.text = FormatInteger(minesCounter);
         }             
     }
 
-    public void ManageTimer(bool state)
+    void ManageTimer(bool state)
     {
         IsTimerRunning = state;
         timerBar.SetActive(state);
@@ -37,10 +34,11 @@ public class TimerController : MonoBehaviour
         return modifier + num.ToString();
     }
 
-    public void RunTimer(int nMines)
+    public void RunTimer(int nMines, bool newTimer)
     {
+        deltaGameTime = newTimer ? 0 : deltaGameTime;
         const bool on = true;
-        startGameTime = Time.time;
+        startGameTime = Time.time - deltaGameTime;
         minesCounter = nMines;
         ManageTimer(on);
     }
@@ -58,5 +56,20 @@ public class TimerController : MonoBehaviour
     public void MinesIncrease()
     {
         minesCounter++;
+    }
+
+    public int GetCurrentMinesCounter()
+    {
+        return minesCounter;
+    }
+
+    public string GetStringTimer()
+    {
+        const string timeSeparator = ":";
+        const int minD = 60;
+        string deltaMin = FormatInteger(deltaGameTime / minD);
+        string deltaSec = FormatInteger(deltaGameTime % minD);
+
+        return deltaMin + timeSeparator + deltaSec; ;
     }
 }

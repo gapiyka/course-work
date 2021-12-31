@@ -7,12 +7,15 @@ public class MenusController : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject startMenu;
     [SerializeField] private GameObject settings;
+    [SerializeField] private GameObject restartMenu;
     [SerializeField] private Image background;
     [SerializeField] private GridManager gridManager;
+    [SerializeField] private PlayerConfiguration.PlayerController playerController;
     [SerializeField] private Slider sensitivitySlider;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider vfxSlider;
-    private bool IsGameStarted = false;
+    [SerializeField] private Slider difficultySlider;
+
     private const float SensMultiplier = 250f;
     private const float transparentAlpha = 0.5f;
     private const float fullTransparentAlpha = 0f;
@@ -23,7 +26,15 @@ public class MenusController : MonoBehaviour
     {
         TurnOnMM();
         LoadConfig();
+        playerController.UnlockScreenCursor();
     }
+
+    void Update()
+    {
+        if(playerController.IsPressedESC) PressEsc();
+        if (gridManager.gameState == GameState.Lose || gridManager.gameState == GameState.Win) RestartMenu();
+    }
+
     public void StartMenu()
     {
         TurnOffMM();
@@ -34,7 +45,6 @@ public class MenusController : MonoBehaviour
     {
         TurnOffMM();
         settings.SetActive(true);
-        LoadConfig();
     }
 
     public void Save()
@@ -53,10 +63,12 @@ public class MenusController : MonoBehaviour
 
     public void StartSolo()
     {
+        int dif = (int)difficultySlider.value;
         CloseMenu();
-        IsGameStarted = true;
-        LoadConfig();
-        gridManager.ReloadMap(1);
+        playerController.IsGameRunning = true;
+        playerController.IsGamePaused = false;
+        gridManager.ReloadMap(dif);
+        playerController.LockScreenCursor();
     }
 
     public void StartOnline()
@@ -80,40 +92,44 @@ public class MenusController : MonoBehaviour
         Application.Quit();
     }
 
-    public bool PressEsc(bool IsGameRunning)
+    public void PressEsc()
     {
-        if (IsGameRunning)
+        if (playerController.IsGameRunning && !playerController.IsGamePaused)
         {
             TurnOnMM();
-            return false;
+            playerController.IsGamePaused = true;
+            playerController.UnlockScreenCursor();
+            gridManager.StopTimer();
         }
         else
         {
-            if (mainMenu.activeSelf && IsGameStarted)
+            if (mainMenu.activeSelf && playerController.IsGameRunning)
             {
                 CloseMenu();
-                return true;
+                playerController.IsGamePaused = false;
+                playerController.LockScreenCursor();
+                gridManager.RunTimer(false);
             }
             else
             {
                 Back();
-                return false;
             }
         }
     }
 
-    public bool IsGameLaunched() {
-        return IsGameStarted;
+    public void RestartGame()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
-    public SaveJsonObject LoadConfig()
+    void LoadConfig()
     {
         string saveString = File.ReadAllText(Application.dataPath + congifSavePath);
         SaveJsonObject saveObject = JsonUtility.FromJson<SaveJsonObject>(saveString);
         sensitivitySlider.value = saveObject.mouseSensitivity / SensMultiplier;
         musicSlider.value = saveObject.musicVolume;
         vfxSlider.value = saveObject.vfxVolume;
-        return saveObject;
+        playerController.UpdateSettings(saveObject);
     }
 
     void TurnOffAllMenus()
@@ -144,8 +160,29 @@ public class MenusController : MonoBehaviour
     void TurnOnMM()
     {
         mainMenu.SetActive(true);
-        float currAlpha = IsGameStarted ? transparentAlpha : opaqueAlpha;
+        float currAlpha = playerController.IsGameRunning ? transparentAlpha : opaqueAlpha;
         Color color = new Color(dByte, dByte, dByte, currAlpha);
         background.color = color;
+    }
+
+    void PrintResultOfGame(bool win)
+    {
+        string[] results = gridManager.GetResults();
+        string timeText = "Your time is: " + results[0];
+        string minesText = "Mines at map: " + results[1];
+        string res = win ?
+            "Hooray, you won!!!" : "Opps, you lose!"; 
+        Text resText = restartMenu.transform.GetChild(1).GetComponent<Text>();
+        resText.text = res + "\n" + timeText + "\n" + minesText;
+    }
+
+    void RestartMenu()
+    {
+        bool win = (gridManager.gameState == GameState.Win) ? true : false;
+        PrintResultOfGame(win);
+        restartMenu.SetActive(true);
+        playerController.UnlockScreenCursor();
+        playerController.IsGamePaused = true;
+        if (win) playerController.WinAnimate();
     }
 }

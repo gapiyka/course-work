@@ -676,17 +676,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1524828149635107553, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
   m_PrefabInstance: {fileID: 1524828149920953091}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &285850083 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1524828149635107552, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
-  m_PrefabInstance: {fileID: 1524828149920953091}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f52b4f8cbb6292745aaaee4609447e93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &312054742
 GameObject:
   m_ObjectHideFlags: 0
@@ -2062,6 +2051,7 @@ MonoBehaviour:
   - {fileID: 5305060716703927948, guid: 936ca044dccbd744986625704b453e27, type: 3}
   cameraShake: {fileID: 963194229}
   timerController: {fileID: 919561854}
+  gameState: 0
 --- !u!4 &868751719
 Transform:
   m_ObjectHideFlags: 0
@@ -2189,11 +2179,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   gridManager: {fileID: 868751718}
-  menusController: {fileID: 285850083}
   audioController: {fileID: 955602472}
   animator: {fileID: 1095930825}
   bodyTransform: {fileID: 1095930826}
   tool: {fileID: 1860681966}
+  IsPressedESC: 0
+  IsGameRunning: 0
+  IsGamePaused: 0
 --- !u!114 &955602472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3158,6 +3150,14 @@ PrefabInstance:
       propertyPath: gridManager
       value: 
       objectReference: {fileID: 868751718}
+    - target: {fileID: 1524828149635107552, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+      propertyPath: restartMenu
+      value: 
+      objectReference: {fileID: 1524828149920953092}
+    - target: {fileID: 1524828149635107552, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 955602471}
     - target: {fileID: 1524828149635107553, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -3248,3 +3248,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+--- !u!1 &1524828149920953092 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 734444862580869787, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+  m_PrefabInstance: {fileID: 1524828149920953091}
+  m_PrefabAsset: {fileID: 0}

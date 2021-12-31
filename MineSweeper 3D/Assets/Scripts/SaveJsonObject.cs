@@ -4,3 +4,10 @@ public class SaveJsonObject
     public float musicVolume;
     public float vfxVolume;
 }
+
+public enum GameState
+{
+    Play,
+    Lose,
+    Win
+}

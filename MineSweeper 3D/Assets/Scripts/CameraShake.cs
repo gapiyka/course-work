@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-	private bool IsShakingRunning = false;
-
 	// How long the object should shake for.
 	public float shakeDuration = 0f;
 
