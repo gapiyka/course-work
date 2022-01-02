@@ -26,7 +26,7 @@ public class MenusController : MonoBehaviour
     {
         TurnOnMM();
         LoadConfig();
-        playerController.UnlockScreenCursor();
+        gridManager.gameState = GameState.Lobby;
     }
 
     void Update()
@@ -65,8 +65,7 @@ public class MenusController : MonoBehaviour
     {
         int dif = (int)difficultySlider.value;
         CloseMenu();
-        playerController.IsGameRunning = true;
-        playerController.IsGamePaused = false;
+        gridManager.gameState = GameState.Play;
         gridManager.ReloadMap(dif);
         playerController.LockScreenCursor();
     }
@@ -94,19 +93,19 @@ public class MenusController : MonoBehaviour
 
     public void PressEsc()
     {
-        if (playerController.IsGameRunning && !playerController.IsGamePaused)
+        if (gridManager.gameState == GameState.Play)
         {
-            TurnOnMM();
-            playerController.IsGamePaused = true;
-            playerController.UnlockScreenCursor();
+            gridManager.gameState = GameState.Pause;
             gridManager.StopTimer();
+            TurnOnMM();
+            playerController.UnlockScreenCursor();
         }
         else
         {
-            if (mainMenu.activeSelf && playerController.IsGameRunning)
+            if (mainMenu.activeSelf && gridManager.gameState == GameState.Pause)
             {
                 CloseMenu();
-                playerController.IsGamePaused = false;
+                gridManager.gameState = GameState.Play;
                 playerController.LockScreenCursor();
                 gridManager.RunTimer(false);
             }
@@ -160,7 +159,7 @@ public class MenusController : MonoBehaviour
     void TurnOnMM()
     {
         mainMenu.SetActive(true);
-        float currAlpha = playerController.IsGameRunning ? transparentAlpha : opaqueAlpha;
+        float currAlpha = (gridManager.gameState == GameState.Pause) ? transparentAlpha : opaqueAlpha;
         Color color = new Color(dByte, dByte, dByte, currAlpha);
         background.color = color;
     }
@@ -178,11 +177,10 @@ public class MenusController : MonoBehaviour
 
     void RestartMenu()
     {
-        bool win = (gridManager.gameState == GameState.Win) ? true : false;
+        bool win = gridManager.gameState == GameState.Win;
         PrintResultOfGame(win);
         restartMenu.SetActive(true);
         playerController.UnlockScreenCursor();
-        playerController.IsGamePaused = true;
         if (win) playerController.WinAnimate();
     }
 }

@@ -7,7 +7,9 @@ public class SaveJsonObject
 
 public enum GameState
 {
+    Lobby,
     Play,
+    Pause,
     Lose,
     Win
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -49,7 +50,9 @@ public class GridManager : MonoBehaviour
         bordersGO.transform.localScale = new Vector3(gameDifficulty, 1, gameDifficulty);
 
         Destroy(tempBorder);
-        tempBorder = Instantiate(bordersGO, new Vector3(gridSize*tileSize, 0, gridSize * tileSize), Quaternion.Euler(0, 180, 0), this.transform);
+        tempBorder = Instantiate(bordersGO, 
+            new Vector3(gridSize*tileSize, 0, gridSize * tileSize), 
+            Quaternion.Euler(0, 180, 0), this.transform);
 
         GenerateGrid();
         RunTimer(true);
@@ -79,7 +82,6 @@ public class GridManager : MonoBehaviour
         nMines = 0;
         mines—hance = (gameDifficulty * tileSize) + minesMultiplier;
         gridMatrix = new Tile[gridSize, gridSize];
-        gameState = GameState.Play;
         
         for (int x = 0; x < gridSize; x++)
         {
@@ -88,7 +90,9 @@ public class GridManager : MonoBehaviour
                 randomChance = UnityEngine.Random.Range(randomLowerBorder, randomUpperBorder);
                 if (randomChance < mines—hance)
                 {
-                    gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[9], new Vector3((x * tileSize) + (tileSize / 2f), 0, (z * tileSize) + (tileSize / 2f)), Quaternion.identity, this.transform);
+                    gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[9], 
+                        new Vector3((x * tileSize) + (tileSize / 2f), 0, (z * tileSize) + (tileSize / 2f)), 
+                        Quaternion.identity, this.transform);
                     gridMatrix[x, z].minesCounter = 9;
                     nMines++;
                 }
@@ -107,43 +111,15 @@ public class GridManager : MonoBehaviour
         {
             for (int z = 0; z < gridSize; z++)
             {
-                int n = 0;
                 if (gridMatrix[x, z].minesCounter == 9) continue;
-                if(x != 0)
-                {
-                    if (gridMatrix[x - 1, z].minesCounter == 9) n++;
-                }
-                if (z != 0)
-                {
-                    if (gridMatrix[x, z - 1].minesCounter == 9) n++;
-                }
-                if (x != 0 && z != 0)
-                {
-                    if (gridMatrix[x - 1, z - 1].minesCounter == 9) n++;
-                }
-                if (x != gridSize - 1)
-                {
-                    if (gridMatrix[x + 1, z].minesCounter == 9) n++;
-                }
-                if (z != gridSize - 1)
-                {
-                    if (gridMatrix[x, z + 1].minesCounter == 9) n++;
-                }
-                if (x != gridSize - 1 && z != gridSize - 1)
-                {
-                    if (gridMatrix[x + 1, z + 1].minesCounter == 9) n++;
-                }
-                if (x != 0 && z != gridSize - 1)
-                {
-                    if (gridMatrix[x - 1, z + 1].minesCounter == 9) n++;
-                }
-                if (x != gridSize - 1 && z !=0)
-                {
-                    if (gridMatrix[x + 1, z - 1].minesCounter == 9) n++;
-                }
+                int n = MatrixCheckSquare(x, z, 
+                    (int1, int2) => { return 1; }, 
+                    (xCheck, zCheck) => { return gridMatrix[xCheck, zCheck].minesCounter == 9; });
 
-                gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[n], new Vector3((x * tileSize) + (tileSize / 2f), 0f, (z * tileSize) + (tileSize / 2f)), Quaternion.identity, this.transform);
                 gridMatrix[x, z].minesCounter = n;
+                gridMatrix[x, z].gameObj = Instantiate(tilesPrefabs[n], 
+                    new Vector3((x * tileSize) + (tileSize / 2f), 0f, (z * tileSize) + (tileSize / 2f)), 
+                    Quaternion.identity, this.transform);
             }
         }
     }
@@ -163,38 +139,8 @@ public class GridManager : MonoBehaviour
         OpenTile(x, z);
         if (gridMatrix[x, z].minesCounter == 0)
         {
-            if (x != 0)
-            {
-                if (!gridMatrix[x - 1, z].IsVisitedByOpening) OpenCloseTiles(x-1, z);
-            }
-            if (z != 0)
-            {
-                if (!gridMatrix[x, z - 1].IsVisitedByOpening) OpenCloseTiles(x, z-1);
-            }
-            if (x != 0 && z != 0)
-            {
-                if (!gridMatrix[x - 1, z - 1].IsVisitedByOpening) OpenCloseTiles(x-1, z-1);
-            }
-            if (x != gridSize - 1)
-            {
-                if (!gridMatrix[x + 1, z].IsVisitedByOpening) OpenCloseTiles(x+1, z);
-            }
-            if (z != gridSize - 1)
-            {
-                if (!gridMatrix[x, z + 1].IsVisitedByOpening) OpenCloseTiles(x, z+1);
-            }
-            if (x != gridSize - 1 && z != gridSize - 1)
-            {
-                if (!gridMatrix[x + 1, z + 1].IsVisitedByOpening) OpenCloseTiles(x+1, z+1);
-            }
-            if (x != 0 && z != gridSize - 1)
-            {
-                if (!gridMatrix[x - 1, z + 1].IsVisitedByOpening) OpenCloseTiles(x-1, z+1);
-            }
-            if (x != gridSize - 1 && z != 0)
-            {
-                if (!gridMatrix[x + 1, z - 1].IsVisitedByOpening) OpenCloseTiles(x+1, z-1);
-            }
+            MatrixCheckSquare(x, z, OpenCloseTiles, 
+                (xCheck, zCheck) => { return !gridMatrix[xCheck, zCheck].IsVisitedByOpening; });
         }
 
         if (gridMatrix[x, z].minesCounter == 9)
@@ -203,6 +149,26 @@ public class GridManager : MonoBehaviour
             return -1;
         }
         return 1;
+    }
+
+    int MatrixCheckSquare(int x, int z, Func<int, int, int> callback, Func<int, int, bool> someCondition)
+    {
+        int n = 0;
+        for (int i = x - 1; i <= x + 1; i++)
+        {
+            for (int j = z - 1; j <= z + 1; j++)
+            {
+                if (i < 0) continue;
+                if (j < 0) continue;
+                if (i >= gridSize) continue;
+                if (j >= gridSize) continue;
+                if (someCondition(i, j))
+                {
+                    n += callback(i, j);
+                }
+            }
+        }
+        return n;
     }
 
     IEnumerator OpenMine(GameObject mine)
@@ -311,7 +277,8 @@ public class GridManager : MonoBehaviour
             for (int z = 0; z < gridMatrix.GetLength(1); z++)
             {
                 Tile tile = gridMatrix[x, z];
-                if (tile.gameObj.transform.position == obj.transform.position) return SwitchTileState(tile, button, x, z);
+                if (tile.gameObj.transform.position == obj.transform.position) 
+                    return SwitchTileState(tile, button, x, z);
             }
         }
         return 0;

@@ -28,8 +28,6 @@ namespace PlayerConfiguration
         private bool IsPressedRMB = false;
         private bool animationNotExecuting = true;
         public bool IsPressedESC = false;
-        public bool IsGameRunning = false;
-        public bool IsGamePaused = false;
 
         void Start()
         {
@@ -40,7 +38,7 @@ namespace PlayerConfiguration
         {
             IsPressedESC = Input.GetKeyDown(KeyCode.Escape);
             if (gridManager.gameState == GameState.Lose || gridManager.gameState == GameState.Win) IsPressedESC = false;
-            if (IsGameRunning && !IsGamePaused)
+            if (gridManager.gameState == GameState.Play)
             {
                 CalculateMovements();
                 CalculateMouseActions();
