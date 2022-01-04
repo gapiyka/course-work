@@ -2184,8 +2184,6 @@ MonoBehaviour:
   bodyTransform: {fileID: 1095930826}
   tool: {fileID: 1860681966}
   IsPressedESC: 0
-  IsGameRunning: 0
-  IsGamePaused: 0
 --- !u!114 &955602472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2350,7 +2348,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.65, z: 0.45}
+  m_LocalPosition: {x: 0, y: 0.83, z: 0.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 955602475}
@@ -3245,6 +3243,14 @@ PrefabInstance:
     - target: {fileID: 1524828149635107554, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
       propertyPath: m_Name
       value: Menus
+      objectReference: {fileID: 0}
+    - target: {fileID: 4335296433206043673, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4759594449048250771, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8884923a18e7b5e4e8af0611e09eabc9, type: 3}
