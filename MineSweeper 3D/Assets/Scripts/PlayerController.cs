@@ -4,6 +4,7 @@ namespace PlayerConfiguration
 {
     public class PlayerController : MonoBehaviour
     {
+        #region Attributes
         [SerializeField] private Camera camera;
         [SerializeField] private GameObject player;
         [SerializeField] private CharacterController controller;
@@ -19,8 +20,7 @@ namespace PlayerConfiguration
         private float speed = 8f;
         private float gravity = -10f;
         private float jumpHeight = 2f;
-
-        private float groundDistance = 0.3f;
+        private float groundDistance = 0.4f;
         private float yRotation = 0f;
         private Vector3 velocity;
         private bool IsGrounded = true;
@@ -28,6 +28,7 @@ namespace PlayerConfiguration
         private bool IsPressedRMB = false;
         private bool animationNotExecuting = true;
         public bool IsPressedESC = false;
+        #endregion
 
         void Start()
         {
@@ -37,7 +38,8 @@ namespace PlayerConfiguration
         void Update()
         {
             IsPressedESC = Input.GetKeyDown(KeyCode.Escape);
-            if (gridManager.gameState == GameState.Lose || gridManager.gameState == GameState.Win) IsPressedESC = false;
+            if (gridManager.gameState == GameState.Lose || 
+                gridManager.gameState == GameState.Win) IsPressedESC = false;
             if (gridManager.gameState == GameState.Play)
             {
                 CalculateMovements();
@@ -88,7 +90,7 @@ namespace PlayerConfiguration
         {
             bodyTransform.localPosition = new Vector3(0, 0, 0);
             bodyTransform.localRotation = Quaternion.identity;
-            //velocity.y = -2f;
+            velocity.y = 0f;
             animator.SetBool("isGrounded", true);
             tool.SetActive(true);
         }
@@ -105,7 +107,10 @@ namespace PlayerConfiguration
         {
             const int tileDistance = 4;
             RaycastHit hit;
-            Vector3 cameraCenter = camera.ScreenToWorldPoint(new Vector3(Screen.width / 2f, Screen.height / 2f, camera.nearClipPlane));// point at center of screen
+            // point at center of screen
+            Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, camera.nearClipPlane);
+            Vector3 cameraCenter = 
+                camera.ScreenToWorldPoint(screenCenter);
             int button = IsPressedRMB ? 2 : 1; // 2==right / 1==left
 
             if (Physics.Raycast(cameraCenter, camera.gameObject.transform.forward, out hit, tileDistance))
@@ -124,7 +129,7 @@ namespace PlayerConfiguration
             if (child.parent != null)
             {
                 Transform parentTransform = child.parent;
-                if(parentTransform.name != "PlayGrid") return GetFullParent(parentTransform);
+                if (parentTransform.name != "PlayGrid") return GetFullParent(parentTransform);
                 else return child;
             }
             else return child;

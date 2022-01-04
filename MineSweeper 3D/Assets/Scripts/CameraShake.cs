@@ -2,14 +2,15 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-	// How long the object should shake for.
-	public float shakeDuration = 0f;
+	#region Attributes
+	public float shakeDuration = 0f; // How long the object should shake for.
 
 	// Amplitude of the shake. A larger value shakes the camera harder.
 	private const float shakeAmount = 0.6f;
 	private const float decreaseFactor = 1.0f;
 
 	private Vector3 originalPos;
+	#endregion
 
 	void OnEnable()
 	{

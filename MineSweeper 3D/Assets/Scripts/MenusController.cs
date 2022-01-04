@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class MenusController : MonoBehaviour
 {
+    #region Attributes
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject startMenu;
     [SerializeField] private GameObject settings;
@@ -22,6 +23,8 @@ public class MenusController : MonoBehaviour
     private const float opaqueAlpha = 1f;
     private const byte dByte = 255;
     private const string congifSavePath = "/config.txt";
+    #endregion
+
     void Start()
     {
         TurnOnMM();
@@ -31,8 +34,9 @@ public class MenusController : MonoBehaviour
 
     void Update()
     {
-        if(playerController.IsPressedESC) PressEsc();
-        if (gridManager.gameState == GameState.Lose || gridManager.gameState == GameState.Win) RestartMenu();
+        if (playerController.IsPressedESC) PressEsc();
+        if (gridManager.gameState == GameState.Lose || 
+            gridManager.gameState == GameState.Win) RestartMenu();
     }
 
     public void StartMenu()
@@ -70,16 +74,6 @@ public class MenusController : MonoBehaviour
         playerController.LockScreenCursor();
     }
 
-    public void StartOnline()
-    {
-
-    }
-
-    public void JoinServer()
-    {
-
-    }
-
     public void Back()
     {
         TurnOffAllMenus();
@@ -95,19 +89,13 @@ public class MenusController : MonoBehaviour
     {
         if (gridManager.gameState == GameState.Play)
         {
-            gridManager.gameState = GameState.Pause;
-            gridManager.StopTimer();
-            TurnOnMM();
-            playerController.UnlockScreenCursor();
+            OpenPauseMenu();
         }
         else
         {
             if (mainMenu.activeSelf && gridManager.gameState == GameState.Pause)
             {
-                CloseMenu();
-                gridManager.gameState = GameState.Play;
-                playerController.LockScreenCursor();
-                gridManager.RunTimer(false);
+                ClosePauseMenu();
             }
             else
             {
@@ -129,6 +117,22 @@ public class MenusController : MonoBehaviour
         musicSlider.value = saveObject.musicVolume;
         vfxSlider.value = saveObject.vfxVolume;
         playerController.UpdateSettings(saveObject);
+    }
+
+    void OpenPauseMenu()
+    {
+        gridManager.gameState = GameState.Pause;
+        gridManager.StopTimer();
+        TurnOnMM();
+        playerController.UnlockScreenCursor();
+    }
+
+    void ClosePauseMenu()
+    {
+        CloseMenu();
+        gridManager.gameState = GameState.Play;
+        playerController.LockScreenCursor();
+        gridManager.RunTimer(false);
     }
 
     void TurnOffAllMenus()

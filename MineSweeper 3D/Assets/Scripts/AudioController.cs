@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class AudioController : MonoBehaviour
 {
+    #region Attributes
     [SerializeField] private AudioSource jumpSound;
     [SerializeField] private AudioSource boomSound;
     [SerializeField] private AudioSource[] selectSound; // 1-st for mine select; 2-nd for flags
     [SerializeField] private AudioSource backgroundMusic;
+    #endregion
 
     void Start()
     {

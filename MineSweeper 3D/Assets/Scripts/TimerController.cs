@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class TimerController : MonoBehaviour
 {
+    #region Attributes
     [SerializeField] private Text timerText;
     [SerializeField] private Text minesText;
     [SerializeField] private GameObject timerBar;
@@ -10,6 +11,7 @@ public class TimerController : MonoBehaviour
     private float startGameTime;
     private int minesCounter;
     private int deltaGameTime = 0;
+    #endregion
 
     void Update()
     {
@@ -36,8 +38,8 @@ public class TimerController : MonoBehaviour
 
     public void RunTimer(int nMines, bool newTimer)
     {
-        deltaGameTime = newTimer ? 0 : deltaGameTime;
         const bool on = true;
+        deltaGameTime = newTimer ? 0 : deltaGameTime;
         startGameTime = Time.time - deltaGameTime;
         minesCounter = nMines;
         ManageTimer(on);

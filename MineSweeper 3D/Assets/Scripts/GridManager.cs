@@ -13,6 +13,7 @@ public struct Tile
 
 public class GridManager : MonoBehaviour
 {
+    #region Attributes
     [SerializeField] private GameObject flagPrefab;
     [SerializeField] private GameObject bordersGO;
     [SerializeField] private Transform playerTransform;
@@ -36,6 +37,7 @@ public class GridManager : MonoBehaviour
 
     public Tile[,] gridMatrix; // two-dimensional array to detect mine
     public GameState gameState;
+#endregion
 
     public void ReloadMap(int difficulty)
     {
@@ -124,7 +126,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    void OpenTile(int x, int z)
+    int OpenTile(int x, int z)
     {
         Transform checkT = gridMatrix[x, z].gameObj.transform.GetChild(0);
         Transform bodyT = gridMatrix[x, z].gameObj.transform.GetChild(1);
@@ -132,11 +134,20 @@ public class GridManager : MonoBehaviour
         bodyT.gameObject.SetActive(true);
         gridMatrix[x, z].IsChecked = true;
         gridMatrix[x, z].IsVisitedByOpening = true;
+        return 1;
     }
 
     int OpenCloseTiles(int x, int z)
     {
+        if (gridMatrix[x, z].IsChecked)
+        {
+            MatrixCheckSquare(x, z, OpenCloseTiles,
+                (xCheck, zCheck) => { return !gridMatrix[xCheck, zCheck].IsFlag && 
+                    !gridMatrix[xCheck, zCheck].IsVisitedByOpening; });
+        }
+
         OpenTile(x, z);
+
         if (gridMatrix[x, z].minesCounter == 0)
         {
             MatrixCheckSquare(x, z, OpenCloseTiles, 
@@ -148,6 +159,7 @@ public class GridManager : MonoBehaviour
             StartCoroutine(OpenMine(gridMatrix[x, z].gameObj));
             return -1;
         }
+
         return 1;
     }
 
@@ -239,17 +251,13 @@ public class GridManager : MonoBehaviour
         bool IsAlreadyChecked = tile.IsChecked;
         bool IsAlreadyFlag = tile.IsFlag;
         
-        if (!IsAlreadyChecked)
-        {
             if (button == 1 && !IsAlreadyFlag) button = OpenCloseTiles(xInArray, zInArray);
 
             if (button == 2) FlagClaim(xInArray, zInArray, IsAlreadyFlag);
 
-            if(CheckOnWin()) EndGame(GameState.Win);
+            if (CheckOnWin()) EndGame(GameState.Win);
 
             return button;
-        }
-        return 0;
     }
 
     bool CheckOnWin()
