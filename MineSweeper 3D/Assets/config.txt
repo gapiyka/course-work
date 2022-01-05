@@ -1,1 +1,1 @@
-{"mouseSensitivity":144.64285278320313,"musicVolume":0.024779044091701509,"vfxVolume":0.08366846293210983}
+{"mouseSensitivity":250.0,"musicVolume":0.024779044091701509,"vfxVolume":0.08366846293210983}

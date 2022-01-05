@@ -28,7 +28,7 @@ Transform:
   m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_Children:
   - {fileID: 2447179388782663210}
-  - {fileID: 8094645151342088945}
+  - {fileID: 765740920570127077}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -136,10 +136,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8094645151342088945}
+  - component: {fileID: 765740920570127077}
   - component: {fileID: 7910397357486560404}
   - component: {fileID: 1297559121835659598}
   - component: {fileID: 5946797909606704000}
+  - component: {fileID: 3825345586244203928}
   m_Layer: 3
   m_Name: Body
   m_TagString: Untagged
@@ -147,8 +148,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!4 &8094645151342088945
-Transform:
+--- !u!224 &765740920570127077
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -161,6 +162,11 @@ Transform:
   m_Father: {fileID: 5114514231327744788}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7910397357486560404
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -180,7 +186,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: de9638a11f2355141892603ef8ee3399, type: 2}
+  - {fileID: 2100000, guid: 33a0c41eb2a9570429f9ae7dca0ba8be, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -224,3 +230,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!222 &3825345586244203928
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7131008804926939682}
+  m_CullTransparentMesh: 1
