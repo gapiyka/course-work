@@ -42,22 +42,38 @@ public class GridManager : MonoBehaviour
     public void ReloadMap(int difficulty)
     {
         ClearExistingMap();
+        CalculateGameParameters(difficulty);
 
+        playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
+        bordersGO.transform.localScale = CalcBorderScale(gameDifficulty); // relocate borders
+
+        Destroy(tempBorder);// destroy temporary borders
+        tempBorder = Instantiate(bordersGO, // // create new temporary borders
+            CalcBorderPos(gridSize, tileSize), 
+            Quaternion.Euler(0, 180, 0), this.transform);
+
+        GenerateGrid();
+        RunTimer(true);
+    }
+
+    public int[] CalculateGameParameters(int difficulty)
+    {
         gameDifficulty = difficulty;
         gridSize = (gameDifficulty * sizeMultiplier) - (gameDifficulty - 1);
         mapSize = gridSize * gridSize;
         mapMiddle = gridSize / 2f;
 
-        playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
-        bordersGO.transform.localScale = new Vector3(gameDifficulty, 1, gameDifficulty);
+        return new int[] { gameDifficulty, gridSize, mapSize };
+    }
 
-        Destroy(tempBorder);
-        tempBorder = Instantiate(bordersGO, 
-            new Vector3(gridSize*tileSize, 0, gridSize * tileSize), 
-            Quaternion.Euler(0, 180, 0), this.transform);
+    public Vector3 CalcBorderScale(int difficulty)
+    {
+        return new Vector3(difficulty, 1, difficulty);
+    }
 
-        GenerateGrid();
-        RunTimer(true);
+    public Vector3 CalcBorderPos(int gridSize, int tileSize)
+    {
+        return new Vector3(gridSize * tileSize, 0, gridSize * tileSize);
     }
 
     void ClearExistingMap()
@@ -248,7 +264,6 @@ public class GridManager : MonoBehaviour
 
     int SwitchTileState(Tile tile, int button, int xInArray, int zInArray)
     {
-        bool IsAlreadyChecked = tile.IsChecked;
         bool IsAlreadyFlag = tile.IsFlag;
         
             if (button == 1 && !IsAlreadyFlag) button = OpenCloseTiles(xInArray, zInArray);
