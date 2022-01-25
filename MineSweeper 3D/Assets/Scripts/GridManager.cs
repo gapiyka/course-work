@@ -44,7 +44,7 @@ public class GridManager : MonoBehaviour
         ClearExistingMap();
         CalculateGameParameters(difficulty);
 
-        playerTransform.position = GetStartPos(1.1f); // spawn palyer at middle of map
+        playerTransform.position = GetStartPos(1.1f); // spawn player at middle of map
         bordersGO.transform.localScale = CalcBorderScale(gameDifficulty); // relocate borders
 
         Destroy(tempBorder);// destroy temporary borders
